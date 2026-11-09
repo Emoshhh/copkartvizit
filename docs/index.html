@@ -170,7 +170,10 @@
   }
   .mini.ok { background: var(--green); color: #fff; }
   .empty { align-self: center; background: rgba(255,255,255,.9); border-radius: 22px; padding: 18px 26px; box-shadow: 0 18px 50px rgba(8,40,90,.2); }
-  .empty img { width: 200px; height: auto; display: block; }
+  .empty img { width: 200px; height: auto; display: block; margin: 0 auto; }
+  .yapistir { display: grid; gap: 10px; margin-top: 16px; max-width: 280px; text-align: center; font-size: 14px; color: #1b2b44; }
+  .yapistir input { font: inherit; font-size: 16px; padding: 11px 12px; border: 1px solid #b9cbe0; border-radius: 12px; width: 100%; box-sizing: border-box; color: #1b2b44; background: #fff; }
+  .yapistir small { color: #b3261e; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -246,7 +249,14 @@
   </g>
 </svg>
 
-<div class="empty" id="empty" hidden><img src="cop31-logo.webp" alt="COP31 Türkiye Antalya" width="900" height="369"></div>
+<div class="empty" id="empty" hidden><img src="cop31-logo.webp" alt="COP31 Türkiye Antalya" width="900" height="369">
+  <form class="yapistir" id="yapistir" hidden>
+    <label for="linkGir">Paste your personal card link once to open it here.</label>
+    <input id="linkGir" type="text" inputmode="url" autocapitalize="off" spellcheck="false" autocomplete="off" placeholder="https://cop31kartvizit.github.io/#…">
+    <button class="btn solid" type="submit">Open</button>
+    <small id="linkHata" hidden>This doesn't look like a card link.</small>
+  </form>
+</div>
 <div class="wrap" id="wrap" hidden>
   <div class="topbar">
     <span class="owner-pill" id="ownerPill" data-t="ownerBadge" hidden></span>
@@ -356,6 +366,16 @@ async function yukle() {
 function bos(hatali) {
   if (hatali && localGet(BENIM) === location.hash.slice(1)) localDel(BENIM);  // artık geçersiz kayıt
   document.getElementById("empty").hidden = false;
+  // Linksiz açıldıysa (ör. iPhone ana ekran uygulamasının hafızası Safari'den ayrıdır) linki bir kez yapıştırma alanı
+  if (location.hash) return;
+  const form = document.getElementById("yapistir");
+  form.hidden = false;
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const m = document.getElementById("linkGir").value.match(/#([a-z0-9]+\.[A-Za-z0-9_-]{22})/);
+    if (!m) { document.getElementById("linkHata").hidden = false; return; }
+    location.replace(location.pathname + "#" + m[1]);
+  };
 }
 
 /* ---------- Yönetici sayfası ---------- */

@@ -1,7 +1,6 @@
 {
   "name": "COP31 Digital Card",
   "short_name": "COP31 Card",
-  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#e4f4fb",
