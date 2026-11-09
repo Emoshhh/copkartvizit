@@ -1,0 +1,12 @@
+{
+  "name": "COP31 Digital Card",
+  "short_name": "COP31 Card",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e4f4fb",
+  "theme_color": "#1048a0",
+  "icons": [
+    { "src": "amblem.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
+  ]
+}

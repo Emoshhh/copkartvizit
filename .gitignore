@@ -1,0 +1,9 @@
+.claude/
+# Okunabilir kişisel veriler: ASLA depoya girmez
+kisiler.json
+fotolar/
+.anahtar
+linkler.txt
+
+# Yerel notlar (depoya yüklenmez)
+README.md

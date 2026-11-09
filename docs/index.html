@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Digital Card</title>
+<meta name="description" content="Digital business card · COP31">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#bfe3f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1d3a" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" href="amblem.png">
+<link rel="apple-touch-icon" href="amblem.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="COP31 Card">
+<style>
+  /* ====== RENKLER (COP31 logosundan) ====== */
+  :root {
+    --navy: #1048a0;          /* logo laciverti */
+    --blue: #0870b8;          /* logo mavisi */
+    --green: #38b878;         /* logo yeşili */
+    --accent: var(--navy);
+    --accent-soft: #e6eef9;
+    --bg: #eef3f8;
+    --card: #ffffff;
+    --text: #102035;
+    --muted: #5a6b80;
+    --line: #e3e9f0;
+    /* manzara */
+    --sky1: #9fd3f2; --sky2: #e4f4fb; --sun: #fff1c7; --cloud: .85; --stars: 0;
+    --far: #a9c9e6; --mid: #6a9fd0; --sea1: #0f80c4; --sea2: #0b4f9e;
+    --hill1: #44c084; --hill2: #2e9a63; --pine: #1f7a4d;
+    --trunk: #9a7650; --palm1: #2f9e5f; --palm2: #237a49;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --accent: #6aa8ff;
+      --accent-soft: #17294a;
+      --bg: #0e1a2e;
+      --card: #111d31;
+      --text: #e8eef7;
+      --muted: #9aabc4;
+      --line: #22324d;
+      --sky1: #071630; --sky2: #1c3a66; --sun: #eef2ff; --cloud: .12; --stars: 1;
+      --far: #233f66; --mid: #1a3357; --sea1: #0d3566; --sea2: #071d3c;
+      --hill1: #1d6a49; --hill2: #165438; --pine: #0f3f2a;
+      --trunk: #4d3b28; --palm1: #17573a; --palm2: #0f4029;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--sky2);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 20px 16px calc(28px + env(safe-area-inset-bottom));
+    line-height: 1.45;
+  }
+  .scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
+  .wrap { width: 100%; max-width: 420px; }
+
+  .topbar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+
+  .card {
+    background: color-mix(in srgb, var(--card) 94%, transparent);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-radius: 26px; overflow: hidden;
+    box-shadow: 0 2px 4px rgba(8,40,90,.06), 0 18px 50px rgba(8,40,90,.22);
+  }
+  .brand { background: #fff; padding: 16px 24px 2px; text-align: center; }
+  .brand img { width: 54%; max-width: 210px; height: auto; display: block; margin: 0 auto; }
+  .swirl { display: block; width: 100%; height: 26px; }
+  .head { padding: 2px 24px 12px; text-align: center; }
+  .avatar {
+    width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 8px; padding: 4px;
+    background: conic-gradient(from 200deg, var(--navy), var(--blue), var(--green), var(--blue), var(--navy));
+  }
+  .avatar > div {
+    width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+    border: 3px solid var(--card); background: var(--accent-soft); color: var(--accent);
+    display: grid; place-items: center; font-size: 28px; font-weight: 700;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  h1 { font-size: 26px; line-height: 1.2; letter-spacing: -.01em; }
+  .title { color: var(--muted); margin-top: 4px; font-size: 15px; }
+  .org { color: var(--blue); font-weight: 600; margin-top: 2px; font-size: 15px; }
+  @media (prefers-color-scheme: dark) { .org { color: #5fc79a; } }
+  .bio { margin-top: 14px; font-size: 15px; }
+  .org-chip { display: inline-block; margin-top: 4px; border-radius: 10px; }
+  .org-name { display: block; margin-top: 4px; font-size: 13px; font-weight: 600; }
+  .org-logo { height: 24px; width: auto; display: block; }
+  @media (prefers-color-scheme: dark) { .org-chip { background: #fff; padding: 6px 12px; } }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 10px; border-radius: 14px; font: inherit; font-size: 15px; font-weight: 600;
+    text-decoration: none; cursor: pointer; border: 0; white-space: nowrap;
+  }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .btn.solid { background: linear-gradient(135deg, var(--navy), var(--blue)); color: #fff; }
+  .btn.ghost { background: var(--accent-soft); color: var(--accent); }
+
+  .links { list-style: none; padding: 0; border-top: 1px solid var(--line); }
+  .links a {
+    display: flex; align-items: center; gap: 14px; padding: 11px 22px;
+    color: var(--text); text-decoration: none; border-bottom: 1px solid var(--line);
+  }
+  .links li:last-child a { border-bottom: 0; }
+  .links a:active { background: var(--accent-soft); }
+  .ico {
+    width: 40px; height: 40px; border-radius: 12px; flex: none;
+    background: var(--accent-soft); color: var(--accent); display: grid; place-items: center;
+  }
+  .ico svg { width: 20px; height: 20px; }
+  .lbl { font-size: 12px; color: var(--muted); }
+  .val { font-size: 15px; font-weight: 500; word-break: break-word; }
+
+
+  /* QR penceresi */
+  .modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none;
+    align-items: center; justify-content: center; padding: 16px; z-index: 10;
+  }
+  .modal.open { display: flex; }
+  .sheet { background: var(--card); border-radius: 22px; width: 100%; max-width: 380px; padding: 18px; text-align: center; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg); padding: 4px; border-radius: 12px; }
+  .tab { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 14px; font-weight: 600; padding: 9px 6px; border-radius: 9px; cursor: pointer; }
+  .tab.on { background: var(--card); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .qrbox { background: #fff; border-radius: 16px; padding: 14px; margin: 16px auto 10px; width: 100%; max-width: 300px; aspect-ratio: 1; }
+  .qrbox svg { width: 100%; height: 100%; display: block; }
+  .hint { color: var(--muted); font-size: 13px; min-height: 2.9em; }
+  .close { margin-top: 12px; width: 100%; }
+  .topbar { justify-content: space-between; align-items: center; gap: 8px; }
+  .contact { padding: 0 20px 16px; }
+  .contact .btn { width: 100%; }
+  .owner-pill {
+    margin-right: auto; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    background: rgba(255,255,255,.7); color: var(--navy); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  }
+  @media (prefers-color-scheme: dark) { .owner-pill { background: rgba(17,29,49,.65); color: var(--text); } }
+  .share { padding: 12px 20px 16px; border-top: 1px solid var(--line); }
+  .share-h { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; text-align: center; margin-bottom: 8px; }
+  .share-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .share-btns.single { grid-template-columns: 1fr; }
+  .btn.big { flex-direction: column; gap: 3px; padding: 16px 8px; white-space: normal; text-align: center; line-height: 1.25; }
+  .btn.big svg { width: 26px; height: 26px; margin-bottom: 4px; }
+  .btn.big small { font-size: 12px; font-weight: 500; opacity: .85; }
+  .sheet-h { font-weight: 700; font-size: 17px; margin-bottom: 12px; }
+  .admin-head { text-align: center; padding: 6px 20px 14px; }
+  .admin-head h1 { font-size: 22px; }
+  .admin-head p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .admin-list { list-style: none; padding: 0; }
+  .admin-row { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--line); }
+  .admin-av {
+    width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 15px;
+  }
+  .admin-link { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+  .admin-link:active { opacity: .6; }
+  .admin-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .admin-info b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .admin-info small { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mini {
+    flex: none; border: 0; border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 13px; font-weight: 600;
+    background: var(--accent-soft); color: var(--accent); cursor: pointer;
+  }
+  .mini.ok { background: var(--green); color: #fff; }
+  .empty { align-self: center; background: rgba(255,255,255,.9); border-radius: 22px; padding: 18px 26px; box-shadow: 0 18px 50px rgba(8,40,90,.2); }
+  .empty img { width: 200px; height: auto; display: block; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<!-- Arka plan: Antalya manzarası (gökyüzü, Toros dağları, Akdeniz, çam ağaçlı tepeler) -->
+<svg class="scene" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" style="stop-color:var(--sky1)"/><stop offset=".7" style="stop-color:var(--sky2)"/>
+    </linearGradient>
+    <linearGradient id="gSea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" style="stop-color:var(--sea1)"/><stop offset="1" style="stop-color:var(--sea2)"/>
+    </linearGradient>
+    <radialGradient id="gGlow"><stop offset="0" style="stop-color:var(--sun);stop-opacity:.75"/><stop offset="1" style="stop-color:var(--sun);stop-opacity:0"/></radialGradient>
+    <g id="pine"><path d="M0-46 L14-14 H8 L18 6 H-18 L-8-14 H-14Z"/><rect x="-3" y="6" width="6" height="10"/></g>
+  </defs>
+  <rect width="1440" height="900" fill="url(#gSky)"/>
+  <g style="opacity:var(--stars)" fill="#fff">
+    <circle cx="140" cy="90" r="1.6"/><circle cx="320" cy="160" r="1.2"/><circle cx="470" cy="70" r="1.8"/><circle cx="560" cy="190" r="1.1"/>
+    <circle cx="640" cy="110" r="1.5"/><circle cx="890" cy="80" r="1.3"/><circle cx="980" cy="170" r="1.7"/><circle cx="1120" cy="60" r="1.2"/>
+    <circle cx="1260" cy="140" r="1.6"/><circle cx="1380" cy="90" r="1.1"/><circle cx="720" cy="40" r="1.2"/><circle cx="820" cy="210" r="1"/>
+  </g>
+  <circle cx="790" cy="300" r="170" fill="url(#gGlow)"/>
+  <circle cx="790" cy="300" r="58" style="fill:var(--sun)"/>
+  <g fill="#fff" style="opacity:var(--cloud)">
+    <ellipse cx="300" cy="210" rx="90" ry="22"/><ellipse cx="350" cy="196" rx="60" ry="26"/>
+    <ellipse cx="620" cy="150" rx="70" ry="16"/><ellipse cx="655" cy="140" rx="40" ry="18"/>
+    <ellipse cx="1110" cy="190" rx="100" ry="22"/><ellipse cx="1160" cy="176" rx="58" ry="26"/>
+  </g>
+  <path d="M640 232 q9-9 18 0 q9-9 18 0 M700 252 q7-7 14 0 q7-7 14 0" fill="none" stroke="#2a4a6e" stroke-width="2.5" stroke-linecap="round" style="opacity:calc(1 - var(--stars))"/>
+  <!-- Toros dağları -->
+  <path style="fill:var(--far)" d="M0 620 V430 L70 395 L150 430 L250 340 L330 400 L420 355 L520 285 L610 360 L690 320 L770 370 L850 305 L935 255 L1015 335 L1095 300 L1180 365 L1265 320 L1350 375 L1440 340 V620Z"/>
+  <path fill="#fff" opacity=".85" d="M935 255 L962 286 L948 281 L938 291 L926 280 L912 284Z M520 285 L546 314 L531 309 L520 318 L508 308 L496 313Z M250 340 L272 364 L258 360 L249 368 L240 360 L230 362Z"/>
+  <path style="fill:var(--mid)" d="M0 640 V500 C80 470 150 445 230 472 S370 520 450 478 S610 405 705 452 S865 522 965 474 S1125 412 1225 462 S1385 502 1440 476 V640Z"/>
+  <!-- Akdeniz -->
+  <rect y="600" width="1440" height="300" fill="url(#gSea)"/>
+  <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".28">
+    <path d="M540 650 q15-7 30 0 t30 0"/><path d="M760 640 q15-7 30 0 t30 0"/><path d="M880 690 q15-7 30 0 t30 0"/>
+    <path d="M640 720 q15-7 30 0 t30 0 t30 0"/><path d="M220 670 q15-7 30 0 t30 0"/><path d="M1150 660 q15-7 30 0 t30 0"/>
+    <path d="M1010 760 q15-7 30 0 t30 0"/><path d="M420 760 q15-7 30 0 t30 0"/><path d="M760 800 q15-7 30 0 t30 0"/>
+  </g>
+  <!-- kıyı tepeleri ve çamlar -->
+  <path style="fill:var(--hill1)" d="M0 900 V715 C120 690 260 712 380 772 S560 870 650 900Z"/>
+  <path style="fill:var(--hill2)" d="M0 900 V795 C110 772 230 805 320 900Z"/>
+  <path style="fill:var(--hill1)" d="M1440 900 V700 C1320 688 1180 738 1080 798 S930 880 860 900Z"/>
+  <path style="fill:var(--hill2)" d="M1440 900 V800 C1340 790 1230 830 1160 900Z"/>
+  <g style="fill:var(--pine)">
+    <use href="#pine" x="70" y="712"/><use href="#pine" x="130" y="704" transform="scale(1)"/><use href="#pine" x="195" y="716"/>
+    <use href="#pine" x="652" y="884"/>
+    <use href="#pine" x="1290" y="706"/><use href="#pine" x="1350" y="700"/><use href="#pine" x="900" y="884"/><use href="#pine" x="940" y="866"/>
+  </g>
+  <!-- Palmiye (Antalya) -->
+  <g transform="translate(561 885)">
+    <path style="fill:var(--trunk)" d="M-4.5 0 C-3 -28 -6 -55 -13 -82 L-7 -83 C-1 -56 3 -29 4.5 0Z"/>
+    <path fill="none" stroke="#000" stroke-opacity=".18" stroke-width="1" stroke-linecap="round"
+      d="M-4 -8 L4 -9 M-4 -18 L3.5 -19 M-4.3 -28 L3 -29 M-5 -38 L2 -39 M-6 -48 L0.5 -49 M-7.5 -58 L-1.5 -59 M-9 -67 L-3.5 -68 M-11 -76 L-5.5 -77"/>
+    <g style="fill:var(--palm2)">
+      <path d="M-10 -82 C-20 -101 -36 -108 -48 -100 C-34 -100 -22 -94 -10 -80Z"/>
+      <path d="M-10 -82 C-1 -103 17 -111 29 -104 C15 -102 3 -94 -10 -80Z"/>
+      <path d="M-10 -80 C-23 -79 -35 -67 -39 -52 C-31 -64 -21 -72 -10 -76Z"/>
+    </g>
+    <g style="fill:var(--palm1)">
+      <path d="M-10 -82 C-27 -94 -47 -90 -58 -71 C-44 -83 -27 -85 -10 -78Z"/>
+      <path d="M-10 -82 C7 -96 30 -94 43 -75 C29 -87 10 -87 -10 -78Z"/>
+      <path d="M-10 -80 C3 -80 18 -70 23 -55 C15 -67 4 -73 -10 -76Z"/>
+    </g>
+    <circle cx="-10" cy="-80" r="3.2" style="fill:var(--trunk)"/>
+  </g>
+  <!-- Vadaa: palmiyenin gövdesine sırtını yaslamış, yüzü sağa dönük dinleniyor (Yapı Kredi peluş görseli) -->
+  <ellipse cx="541" cy="885" rx="16" ry="2.4" fill="#000" opacity=".18"/>
+  <g transform="translate(558 886) rotate(6)">
+    <image href="vadaa.png" x="-34.4" y="-34" width="34.4" height="34"/>
+  </g>
+</svg>
+
+<div class="empty" id="empty" hidden><img src="cop31-logo.webp" alt="COP31 Türkiye Antalya" width="900" height="369"></div>
+<div class="wrap" id="wrap" hidden>
+  <div class="topbar">
+    <span class="owner-pill" id="ownerPill" data-t="ownerBadge" hidden></span>
+  </div>
+
+  <main class="card">
+    <header class="brand"><img src="cop31-logo.webp" alt="COP31 Türkiye Antalya" width="900" height="369"></header>
+    <svg class="swirl" viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 0 H400 V10 C330 24 270 -2 200 10 S70 24 0 10Z" fill="#fff"/>
+      <path d="M0 13 C70 27 130 1 200 13 S330 27 400 13" fill="none" stroke="#1048a0" stroke-width="2.5"/>
+      <path d="M0 18 C70 32 130 6 200 18 S330 32 400 18" fill="none" stroke="#0870b8" stroke-width="2"/>
+      <path d="M0 23 C70 37 130 11 200 23 S330 37 400 23" fill="none" stroke="#38b878" stroke-width="2"/>
+    </svg>
+    <section class="head">
+      <div class="avatar"><div id="avatar"></div></div>
+      <h1 id="name"></h1>
+      <p class="title" id="title"></p>
+      <p class="org" id="org"></p>
+      <p class="bio" id="bio"></p>
+    </section>
+
+
+    <!-- Karşı tarafın gördüğü sayfada: tanıştığın kişi kendi bilgilerini e-postayla göndersin -->
+    <div class="contact" id="contact" hidden>
+      <a class="btn solid" id="contactBtn" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+        <span data-t="contactMe"></span>
+      </a>
+    </div>
+
+    <ul class="links" id="links"></ul>
+
+    <!-- Senin sayfan: numaralı / numarasız QR butonları -->
+    <section class="share" id="share" hidden>
+      <p class="share-h" data-t="shareTitle"></p>
+      <div class="share-btns" id="shareBtns">
+        <button class="btn solid big qrv" data-v="tam" id="btnTam" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+          <span data-t="qrFull"></span><small id="subTam"></small>
+        </button>
+        <button class="btn ghost big qrv" data-v="kisa" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+          <span data-t="qrShort"></span><small id="subKisa"></small>
+        </button>
+      </div>
+    </section>
+  </main>
+
+</div>
+
+<!-- Yönetici sayfası: herkesin linki (sadece yöneticide) -->
+<div class="wrap" id="admin" hidden>
+  <main class="card" id="adminCard">
+    <section class="admin-head">
+      <h1>Kartvizit linkleri</h1>
+      <p id="adminSub"></p>
+    </section>
+    <ul class="admin-list" id="adminList"></ul>
+  </main>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <p class="sheet-h" id="sheetH"></p>
+    <div class="tabs">
+      <button class="tab on" data-mode="link" type="button" data-t="tabLink"></button>
+      <button class="tab" data-mode="vcard" type="button" data-t="tabOffline"></button>
+    </div>
+    <div class="qrbox" id="qrbox"></div>
+    <p class="hint" id="qrHint"></p>
+    <button class="btn solid close" id="closeBtn" type="button" data-t="close"></button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+/* Kişi bilgileri k/<id>.json içinde şifreli durur. Linkin # sonrasındaki kısmı "<id>.<anahtar>"
+   biçimindedir; # sonrası tarayıcıdan sunucuya hiç gönderilmez. Anahtar olmadan kart açılamaz. */
+let KART = null;
+
+const b64u = (s) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), (c) => c.charCodeAt(0));
+
+// Ana ekrana eklenmiş uygulama adresi #'siz açılabilir: bu cihazda en son açılan "Senin sayfan"a dön
+const BENIM = "benimSayfam";
+async function yukle() {
+  const m = location.hash.match(/^#([a-z0-9]+)\.([A-Za-z0-9_-]{22})$/);
+  if (!m) {
+    const kayitli = localGet(BENIM);
+    if (kayitli) { location.replace(location.pathname + "#" + kayitli); return; }
+    return bos();
+  }
+  try {
+    // İnternet yoksa servis çalışanı (sw.js) daha önce kaydedilmiş kopyayı verir
+    const res = await fetch(`k/${m[1]}.json`, { cache: "no-store" });
+    if (!res.ok) return bos(true);
+    const { iv, ct } = await res.json();
+    const key = await crypto.subtle.importKey("raw", b64u(m[2]), "AES-GCM", false, ["decrypt"]);
+    const acik = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64u(iv) }, key, b64u(ct));
+    KART = JSON.parse(new TextDecoder().decode(acik));
+  } catch (e) { return bos(true); }
+  if (KART.mod === "yonetim") return yonetimGoster();
+  // Kişinin kendi sayfasını bu cihazda hatırla (yönetici listesinden açılanlar hariç)
+  if (KART.mod === "sahip" && !sessionGet("yoneticiden")) localSet(BENIM, location.hash.slice(1));
+  document.getElementById("wrap").hidden = false;
+  render();
+}
+function bos(hatali) {
+  if (hatali && localGet(BENIM) === location.hash.slice(1)) localDel(BENIM);  // artık geçersiz kayıt
+  document.getElementById("empty").hidden = false;
+}
+
+/* ---------- Yönetici sayfası ---------- */
+function yonetimGoster() {
+  document.title = "Kartvizit linkleri";
+  const card = document.getElementById("adminCard");
+  // Kartvizitteki logo başlığını ve dalga çizgisini aynen kullan
+  card.prepend(document.querySelector("#wrap .swirl").cloneNode(true));
+  card.prepend(document.querySelector("#wrap .brand").cloneNode(true));
+  const liste = KART.kisiler;
+  document.getElementById("adminSub").textContent = `🔒 Sadece sen görürsün · ${liste.length} kişi`;
+  document.getElementById("adminList").innerHTML = liste.map((k, i) => {
+    const bas = ((k.ad[0] || "") + (k.soyad[0] || "")).toLocaleUpperCase("tr");
+    const unvan = (k.unvan && (k.unvan.en || k.unvan.tr)) || "";
+    return `<li class="admin-row">
+      <a class="admin-link" href="#${esc(k.sahip)}">
+        <span class="admin-av">${esc(bas)}</span>
+        <span class="admin-info"><b>${esc(k.ad + " " + k.soyad)}</b><small>${esc(unvan)}</small></span>
+      </a>
+      <button class="mini" type="button" data-kopyala="${i}">Kopyala</button>
+      <button class="mini" type="button" data-qr="${i}">QR</button>
+    </li>`;
+  }).join("");
+  const link = (i) => location.origin + location.pathname + "#" + liste[i].sahip;
+  // Listeden açılan sayfalar "benim sayfam" olarak hatırlanmasın
+  document.querySelectorAll(".admin-link").forEach((a) => a.addEventListener("click", () => sessionSet("yoneticiden", "1")));
+  document.querySelectorAll("[data-kopyala]").forEach((b) => b.onclick = async () => {
+    const url = link(+b.dataset.kopyala);
+    try { await navigator.clipboard.writeText(url); }
+    catch (e) {   // eski tarayıcılar için yedek yöntem
+      const t = document.createElement("textarea"); t.value = url; document.body.appendChild(t);
+      t.select(); document.execCommand("copy"); t.remove();
+    }
+    b.textContent = "Kopyalandı ✓"; b.classList.add("ok");
+    setTimeout(() => { b.textContent = "Kopyala"; b.classList.remove("ok"); }, 1800);
+  });
+  document.querySelectorAll("[data-qr]").forEach((b) => b.onclick = () => {
+    const k = liste[+b.dataset.qr];
+    qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
+    const qr = qrcode(0, "M"); qr.addData(link(+b.dataset.qr)); qr.make();
+    document.getElementById("qrbox").innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+    document.getElementById("sheetH").textContent = `${k.ad} ${k.soyad}`;
+    document.getElementById("qrHint").textContent = "Okutan kişi kendi sayfasını açar.";
+    document.querySelector(".tabs").hidden = true;
+    document.getElementById("closeBtn").textContent = "Kapat";
+    document.getElementById("modal").classList.add("open");
+  });
+  document.getElementById("admin").hidden = false;
+}
+
+/* ===================== bundan sonrası kod ===================== */
+const T = {
+  en: { tabLink: "Page link", tabOffline: "Offline",
+        hintLink: "Scanning opens your card.",
+        hintOffline: "No internet needed: scanning adds the details straight to contacts.",
+        close: "Close", phone: "Phone", email: "Email", linkedin: "LinkedIn", web: "Website",
+        whatsapp: "WhatsApp", instagram: "Instagram", x: "X",
+        ownerBadge: "🔒 Your page · only you see this", shareTitle: "Share your card",
+        qrFull: "QR with phone", qrShort: "QR without phone", qrOnly: "Show QR",
+        modalFull: "📞 Card with phone", modalShort: "Card without phone",
+        contactMe: "Send me your contact" }
+};
+
+const ICONS = {
+  phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
+  whatsapp: '<path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.3z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8a4 4 0 0 1-1.8-1.8l.8-1-1-2z"/>',
+  email: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+  linkedin: '<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/>',
+  web: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+  instagram: '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/>',
+  x: '<path d="M4 4l16 16M20 4 4 20"/>'
+};
+const svg = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]}</svg>`;
+const digits = (s) => s.replace(/[^\d+]/g, "");
+const pretty = (u) => {
+  let s = u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+  try { s = decodeURIComponent(s); } catch (e) {}   // "%C3%BC" → "ü" (Türkçe karakterler okunur görünsün)
+  return s;
+};
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const lang = "en";   // kartlar sadece İngilizce
+let qrMode = "link";
+let qrVar = "kisa";   // "tam" = numaralı, "kisa" = numarasız
+const sahip = () => KART && KART.mod === "sahip";
+const varyantLinki = (v) => location.origin + location.pathname + "#" + KART.paylas[v];
+
+function localGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function localSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function localDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function sessionGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+function sessionSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+
+function vcardText(telefonlu = true) {
+  const e = (s) => String(s).replace(/([,;\\])/g, "\\$1");
+  const L = ["BEGIN:VCARD", "VERSION:3.0",
+    `N:${e(KART.soyad)};${e(KART.ad)};;;`, `FN:${e(KART.ad + " " + KART.soyad)}`];
+  if (KART.kurum) L.push(`ORG:${e(KART.kurum)}`);
+  if (KART.unvan.en || KART.unvan.tr) L.push(`TITLE:${e(KART.unvan[lang] || KART.unvan.en)}`);
+  if (KART.telefon && telefonlu) L.push(`TEL;TYPE=CELL:${digits(KART.telefon)}`);
+  if (KART.eposta) L.push(`EMAIL;TYPE=INTERNET:${KART.eposta}`);
+  if (KART.linkedin) L.push(`URL:${KART.linkedin}`);
+  else if (KART.web) L.push(`URL:${KART.web}`);
+  if (KART.vcardNot) L.push(`NOTE:${e(KART.vcardNot)}`);
+  L.push("END:VCARD");
+  return L.join("\r\n");
+}
+
+function render() {
+  const t = T[lang];
+  const full = `${KART.ad} ${KART.soyad}`.trim();
+  document.documentElement.lang = lang;
+  document.title = full;
+  document.getElementById("name").textContent = full;
+  // Ünvan virgülden bölünür: "Specialist, ICAAP and ..." → iki satır
+  document.getElementById("title").innerHTML = (KART.unvan[lang] || "").split(/,\s*/).map(esc).join("<br>");
+  // Kurum logosu varsa logo + altında kurumun tam adı
+  document.getElementById("org").innerHTML = KART.kurumLogo
+    ? `<span class="org-chip"><img class="org-logo" src="${esc(KART.kurumLogo)}" alt=""` +
+      // Yatay olmayan (daha kare) logolar biraz daha büyük görünsün, ör. KPMG
+      ` onload="if(this.naturalWidth/this.naturalHeight<3.5)this.style.height='34px'"></span>` +
+      (KART.kurum ? `<span class="org-name">${esc(KART.kurum)}</span>` : "")
+    : esc(KART.kurum || "");
+  document.getElementById("bio").textContent = KART.tanitim[lang] || "";
+
+  const av = document.getElementById("avatar");
+  av.innerHTML = KART.foto
+    ? `<img src="${esc(KART.foto)}" alt="${esc(full)}">`
+    : esc((KART.ad[0] || "") + (KART.soyad[0] || "")).toLocaleUpperCase("tr");
+
+  document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = t[el.dataset.t]; });
+
+  const rows = [];
+  if (KART.telefon) rows.push(["phone", t.phone, KART.telefon, `tel:${digits(KART.telefon)}`]);
+  if (KART.telefon && KART.whatsapp) rows.push(["whatsapp", t.whatsapp, KART.telefon, `https://wa.me/${digits(KART.telefon).replace("+", "")}`]);
+  if (KART.eposta) rows.push(["email", t.email, KART.eposta, `mailto:${KART.eposta}`]);
+  if (KART.linkedin) rows.push(["linkedin", t.linkedin, pretty(KART.linkedin), KART.linkedin]);
+  if (KART.web) rows.push(["web", t.web, pretty(KART.web), KART.web]);
+  if (KART.instagram) rows.push(["instagram", t.instagram, pretty(KART.instagram), KART.instagram]);
+  if (KART.x) rows.push(["x", t.x, pretty(KART.x), KART.x]);
+  document.getElementById("links").innerHTML = rows.map(([k, lbl, val, href]) => {
+    const ext = href.startsWith("http") ? ' target="_blank" rel="noopener"' : "";
+    return `<li><a href="${esc(href)}"${ext}><span class="ico">${svg(k)}</span><span><span class="lbl">${esc(lbl)}</span><br><span class="val">${esc(val)}</span></span></a></li>`;
+  }).join("");
+
+  // Senin sayfan mı, karşı tarafın gördüğü sayfa mı?
+  const owner = sahip();
+  document.getElementById("ownerPill").hidden = !owner;
+  const contact = !owner && !!KART.eposta;
+  document.getElementById("contact").hidden = !contact;
+  if (contact) {
+    const govde = `Hi ${KART.ad},\n\nGreat to meet you at COP31 Antalya! Here are my details:\n\n` +
+      `Name:\nTitle / Organization:\nPhone:\nLinkedIn:\n\nBest regards,\n`;
+    document.getElementById("contactBtn").href = `mailto:${KART.eposta}` +
+      `?subject=${encodeURIComponent("Met at COP31 Antalya")}&body=${encodeURIComponent(govde)}`;
+  }
+  document.getElementById("share").hidden = !owner;
+  if (owner) {
+    const ortak = [KART.eposta && t.email, KART.linkedin && t.linkedin, KART.web && t.web].filter(Boolean);
+    document.getElementById("subTam").textContent = [t.phone, ...ortak].join(", ");
+    document.getElementById("subKisa").textContent = ortak.join(", ");
+    // Telefon numarası girilmemişse iki QR aynı olur: tek buton göster
+    const tekli = !KART.telefon;
+    document.getElementById("btnTam").hidden = tekli;
+    document.getElementById("shareBtns").classList.toggle("single", tekli);
+    if (tekli) document.querySelector('[data-v="kisa"] [data-t]').textContent = t.qrOnly;
+  }
+
+  if (document.getElementById("modal").classList.contains("open")) drawQR();
+}
+
+function drawQR() {
+  const box = document.getElementById("qrbox");
+  if (typeof qrcode === "undefined") { box.textContent = "QR yüklenemedi / QR failed to load"; return; }
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
+  const link = varyantLinki(qrVar);
+  const data = qrMode === "link" ? link : vcardText(qrVar === "tam");
+  const qr = qrcode(0, qrMode === "link" ? "M" : "L"); // uzun vCard için L: daha seyrek, daha kolay okunur
+  qr.addData(data);
+  qr.make();
+  box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+  const t = T[lang];
+  document.getElementById("sheetH").textContent = KART.telefon ? t[qrVar === "tam" ? "modalFull" : "modalShort"] : "";
+  document.getElementById("qrHint").textContent = t[qrMode === "link" ? "hintLink" : "hintOffline"];
+  // Numarasız QR'da sekme yok: sadece sayfa linki (e-posta + LinkedIn için internet zaten gerekli)
+  document.querySelector(".tabs").hidden = qrVar === "kisa";
+  document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("on", b.dataset.mode === qrMode));
+}
+
+function qrAc(v) { qrVar = v; qrMode = "link"; document.getElementById("modal").classList.add("open"); drawQR(); }
+document.querySelectorAll(".qrv").forEach((b) => b.onclick = () => qrAc(b.dataset.v));
+document.getElementById("closeBtn").onclick = () => document.getElementById("modal").classList.remove("open");
+document.getElementById("modal").onclick = (e) => { if (e.target.id === "modal") e.target.classList.remove("open"); };
+document.querySelectorAll(".tab").forEach((b) => b.onclick = () => { qrMode = b.dataset.mode; drawQR(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") document.getElementById("modal").classList.remove("open"); });
+window.addEventListener("hashchange", () => location.reload());
+
+// İnternetsiz çalışma: sayfa ve açılan kartlar telefonda saklanır (sw.js)
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+  // Bu açılıştaki kartın dosyasını da hemen sakla (ilk açılışta servis çalışanı henüz devrede değildir)
+  const mm = location.hash.match(/^#([a-z0-9]+)\./);
+  if (mm) navigator.serviceWorker.ready.then((reg) => reg.active && reg.active.postMessage({
+    sakla: new URL(`k/${mm[1]}.json`, location.href).href
+  })).catch(() => {});
+}
+
+yukle();
+</script>
+</body>
+</html>
