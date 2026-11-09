@@ -3,7 +3,7 @@
 // - Açılan kartların şifreli dosyaları (k/*.json) her açılışta güncellenip saklanır.
 // - Önce internet denenir (en güncel hal için); 3 sn içinde yanıt yoksa saklanan kopya kullanılır.
 // Sayfada bir değişiklik yapınca SURUM'ü artır ki eski önbellek temizlensin.
-const SURUM = "kartvizit-v3";
+const SURUM = "kartvizit-v4";
 const QR_LIB = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js";
 const TEMEL = ["./", "index.html", "cop31-logo.webp", "amblem.png", "vadaa.png", "manifest.webmanifest", QR_LIB];
 

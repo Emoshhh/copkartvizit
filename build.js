@@ -18,7 +18,7 @@ const ANAHTAR = path.join(ROOT, ".anahtar");
 const KLASOR = path.join(ROOT, "docs", "k");
 
 const VARSAYILAN = {
-  foto: "", unvan: { tr: "", en: "" }, kurum: "", kurumLogo: "", tanitim: { tr: "", en: "" },
+  foto: "", unvan: { tr: "", en: "" }, kurum: "", kurumKisa: "", kurumLogo: "", tanitim: { tr: "", en: "" },
   telefon: "", whatsapp: false, eposta: "", linkedin: "", web: "", instagram: "", x: "",
   vcardNot: "Met at COP31 Antalya"
 };

@@ -483,8 +483,10 @@ function sessionSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
 
 function vcardText(telefonlu = true) {
   const e = (s) => String(s).replace(/([,;\\])/g, "\\$1");
+  // Rehberde kurum kısaltmasıyla görünsün, ör. "YKB Ad Soyad" (kısaltma ad alanına eklenir, her telefonda aynı görünür)
+  const ad = (KART.kurumKisa ? KART.kurumKisa + " " : "") + KART.ad;
   const L = ["BEGIN:VCARD", "VERSION:3.0",
-    `N:${e(KART.soyad)};${e(KART.ad)};;;`, `FN:${e(KART.ad + " " + KART.soyad)}`];
+    `N:${e(KART.soyad)};${e(ad)};;;`, `FN:${e(ad + " " + KART.soyad)}`];
   if (KART.kurum) L.push(`ORG:${e(KART.kurum)}`);
   if (KART.unvan.en || KART.unvan.tr) L.push(`TITLE:${e(KART.unvan[lang] || KART.unvan.en)}`);
   if (KART.telefon && telefonlu) L.push(`TEL;TYPE=CELL:${digits(KART.telefon)}`);
