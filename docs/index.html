@@ -10,8 +10,15 @@
 <meta name="theme-color" content="#0b1d3a" media="(prefers-color-scheme: dark)">
 <link rel="icon" type="image/png" href="amblem.png">
 <link rel="apple-touch-icon" href="amblem.png">
-<link rel="manifest" href="manifest.webmanifest">
+<script>
+  /* iPhone/iPad manifest görünce ana ekran kısayolunu #anahtar olmadan kaydeder, uygulamanın hafızası da Safari'den ayrıdır.
+     Bu yüzden orada manifest eklenmez: "Ana Ekrana Ekle" açık sayfanın tam linkini (#anahtar dahil) kaydeder. */
+  if (!(/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1))) {
+    document.write('<link rel="manifest" href="manifest.webmanifest">');
+  }
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="COP31 Card">
 <style>
   /* ====== RENKLER (COP31 logosundan) ====== */
@@ -251,10 +258,10 @@
 
 <div class="empty" id="empty" hidden><img src="cop31-logo.webp" alt="COP31 Türkiye Antalya" width="900" height="369">
   <form class="yapistir" id="yapistir" hidden>
-    <label for="linkGir">Paste your personal card link once to open it here.</label>
-    <input id="linkGir" type="text" inputmode="url" autocapitalize="off" spellcheck="false" autocomplete="off" placeholder="https://cop31kartvizit.github.io/#…">
-    <button class="btn solid" type="submit">Open</button>
-    <small id="linkHata" hidden>This doesn't look like a card link.</small>
+    <label for="linkGir">Copy your personal card link, then tap the button. You only need to do this once.</label>
+    <input id="linkGir" type="text" inputmode="url" autocapitalize="off" spellcheck="false" autocomplete="off" placeholder="…or paste the link here">
+    <button class="btn solid" type="submit">Paste link &amp; open</button>
+    <small id="linkHata" hidden>No card link found. Copy your card link first, then tap again.</small>
   </form>
 </div>
 <div class="wrap" id="wrap" hidden>
@@ -370,9 +377,14 @@ function bos(hatali) {
   if (location.hash) return;
   const form = document.getElementById("yapistir");
   form.hidden = false;
-  form.onsubmit = (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
-    const m = document.getElementById("linkGir").value.match(/#([a-z0-9]+\.[A-Za-z0-9_-]{22})/);
+    let metin = document.getElementById("linkGir").value.trim();
+    // Kutu boşsa panodaki linki al (iPhone küçük bir "Yapıştır" onayı gösterir)
+    if (!metin && navigator.clipboard && navigator.clipboard.readText) {
+      try { metin = await navigator.clipboard.readText(); } catch (err) {}
+    }
+    const m = (metin || "").match(/#([a-z0-9]+\.[A-Za-z0-9_-]{22})/);
     if (!m) { document.getElementById("linkHata").hidden = false; return; }
     location.replace(location.pathname + "#" + m[1]);
   };
